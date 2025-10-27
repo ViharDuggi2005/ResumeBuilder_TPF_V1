@@ -1,6 +1,5 @@
 import React, { useState, useRef } from 'react';
 import ResumeForm from './components/ResumeForm';
-import ResumePreview from './components/ResumePreview';
 import PaginatedResume from './components/PaginatedResume';
 import type { ResumeData } from './types';
 
@@ -11,13 +10,13 @@ declare const html2canvas: any;
 const initialResumeData: ResumeData = {
   personalDetails: {
     name: 'DUGGI SHANMUKHA VIHAR',
-    photo: 'https://via.placeholder.com/130x140.png?text=Photo',
+    photo: 'https://via.placeholder.com/130x140.png?text=',
     degree: 'B.Tech - Computer Science and Engineering',
     gender: 'Male',
     dob: '06/09/2005',
     email: 'tp@nitt.edu',
     contact: '+91-431-2501081',
-    logo: 'https://via.placeholder.com/144x144.png?text=Logo',
+    logo: 'https://via.placeholder.com/144x144.png?text=',
   },
   education: [
     { id: 'edu1', year: '2023-Present', degree: 'B.Tech- CSE', institution: 'NIT, Trichy', grade: '8.74' },
@@ -84,38 +83,33 @@ function App() {
   const [resumeData, setResumeData] = useState<ResumeData>(initialResumeData);
   const [isFormVisible, setIsFormVisible] = useState(true);
   const [zoom, setZoom] = useState(1);
-  const resumePdfSourceRef = useRef<HTMLDivElement>(null);
+  const paginatedResumeRef = useRef<HTMLDivElement>(null);
   const photoFileInputRef = useRef<HTMLInputElement>(null);
+  const logoFileInputRef = useRef<HTMLInputElement>(null);
 
   const handleTriggerPhotoUpload = () => {
     photoFileInputRef.current?.click();
   };
 
+  const handleTriggerLogoUpload = () => {
+    logoFileInputRef.current?.click();
+  };
 
   const handleDownloadPdf = async () => {
-    const input = resumePdfSourceRef.current;
-    if (!input) return;
+    const container = paginatedResumeRef.current;
+    if (!container) {
+      console.error("Resume container not found for PDF generation.");
+      alert("Could not generate PDF. Please try again.");
+      return;
+    }
 
-    const footerElement = input.querySelector('footer');
-    if (!footerElement) return;
+    const pageElements = container.querySelectorAll('.resume-page-container');
+    if (pageElements.length === 0) {
+      console.error("No pages found to download.");
+      alert("There is no content to download as a PDF.");
+      return;
+    }
 
-    // 1. Capture the footer canvas
-    const footerCanvas = await html2canvas(footerElement, {
-      scale: 2,
-      useCORS: true,
-    });
-    const footerImgData = footerCanvas.toDataURL('image/png');
-    
-    // 2. Hide the original footer and capture the main content canvas
-    footerElement.style.display = 'none';
-    const contentCanvas = await html2canvas(input, {
-      scale: 2,
-      useCORS: true,
-    });
-    footerElement.style.display = 'block'; // Restore footer visibility
-    const contentImgData = contentCanvas.toDataURL('image/png');
-
-    // 3. Initialize the PDF
     const pdf = new jspdf.jsPDF({
       orientation: 'portrait',
       unit: 'mm',
@@ -125,31 +119,27 @@ function App() {
     const pdfWidth = pdf.internal.pageSize.getWidth();
     const pdfHeight = pdf.internal.pageSize.getHeight();
 
-    // 4. Calculate image dimensions in mm
-    const contentRatio = contentCanvas.width / pdfWidth;
-    const contentHeightInMM = contentCanvas.height / contentRatio;
+    for (let i = 0; i < pageElements.length; i++) {
+      const pageElement = pageElements[i] as HTMLElement;
+      
+      const uploadButtons = pageElement.parentElement?.querySelectorAll('button[aria-label^="Upload"]');
+      uploadButtons?.forEach(btn => (btn as HTMLElement).style.visibility = 'hidden');
 
-    const footerRatio = footerCanvas.width / pdfWidth;
-    const footerHeightInMM = footerCanvas.height / footerRatio;
+      const canvas = await html2canvas(pageElement, {
+        scale: 2,
+        useCORS: true,
+        width: pageElement.offsetWidth,
+        height: pageElement.offsetHeight,
+      });
 
-    // 5. Paginate the content and add footer to each page
-    const contentSpaceHeight = pdfHeight - footerHeightInMM;
-    let contentProcessedHeight = 0;
-    let pageCount = 0;
+      uploadButtons?.forEach(btn => (btn as HTMLElement).style.visibility = 'visible');
 
-    while (contentProcessedHeight < contentHeightInMM) {
-      if (pageCount > 0) {
+      if (i > 0) {
         pdf.addPage();
       }
-
-      const position = -contentProcessedHeight;
-      // Add the content slice for the current page
-      pdf.addImage(contentImgData, 'PNG', 0, position, pdfWidth, contentHeightInMM);
-      // Add the footer at the bottom of the page
-      pdf.addImage(footerImgData, 'PNG', 0, contentSpaceHeight, pdfWidth, footerHeightInMM);
-
-      contentProcessedHeight += contentSpaceHeight;
-      pageCount++;
+      
+      const imgData = canvas.toDataURL('image/png');
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
     }
 
     pdf.save(`${resumeData.personalDetails.name.replace(/\s/g, '_')}_Resume.pdf`);
@@ -163,6 +153,7 @@ function App() {
             resumeData={resumeData} 
             setResumeData={setResumeData} 
             photoFileInputRef={photoFileInputRef}
+            logoFileInputRef={logoFileInputRef}
           />
         </div>
       </aside>
@@ -183,14 +174,11 @@ function App() {
         
         <div style={{ transform: `scale(${zoom})`, transformOrigin: 'top' }} className="transition-transform duration-200">
            <PaginatedResume 
+            ref={paginatedResumeRef}
             resumeData={resumeData} 
             onPhotoUploadClick={handleTriggerPhotoUpload}
+            onLogoUploadClick={handleTriggerLogoUpload}
           />
-        </div>
-        
-        {/* Hidden component solely for PDF generation */}
-        <div className="absolute top-0 left-[-9999px] opacity-0" aria-hidden="true">
-            <ResumePreview ref={resumePdfSourceRef} resumeData={resumeData} />
         </div>
       </main>
 

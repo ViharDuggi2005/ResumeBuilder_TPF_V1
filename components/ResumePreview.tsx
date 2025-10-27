@@ -50,32 +50,34 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>(({ resumeDa
       <main className="text-base pt-6">
         {education && education.length > 0 && (
           <Section title="Educational Qualification">
-            <table className="w-full border-collapse border border-black text-black text-center text-base">
-              <thead>
-                <tr>
-                  <th className="border border-black p-2 font-bold h-[0.5in]">Year</th>
-                  <th className="border border-black p-2 font-bold h-[0.5in]">Degree/Examination</th>
-                  <th className="border border-black p-2 font-bold h-[0.5in]">Institution/Board</th>
-                  <th className="border border-black p-2 font-bold h-[0.5in]">CGPA/Percentage</th>
-                </tr>
-              </thead>
-              <tbody>
-                {education.map(edu => (
-                  <tr key={edu.id}>
-                    <td className="border border-black p-2 h-[0.5in]">{edu.year}</td>
-                    <td className="border border-black p-2 h-[0.5in]">{edu.degree}</td>
-                    <td className="border border-black p-2 h-[0.5in]">{edu.institution}</td>
-                    <td className="border border-black p-2 h-[0.5in]">{edu.grade}</td>
+            <div className="mt-2">
+              <table className="w-full border-collapse border border-black text-black text-center text-base">
+                <thead>
+                  <tr>
+                    <th className="border border-black p-2 font-bold h-[0.5in]">Year</th>
+                    <th className="border border-black p-2 font-bold h-[0.5in]">Degree/Examination</th>
+                    <th className="border border-black p-2 font-bold h-[0.5in]">Institution/Board</th>
+                    <th className="border border-black p-2 font-bold h-[0.5in]">CGPA/Percentage</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {education.map(edu => (
+                    <tr key={edu.id}>
+                      <td className="border border-black p-2 h-[0.5in]">{edu.year}</td>
+                      <td className="border border-black p-2 h-[0.5in]">{edu.degree}</td>
+                      <td className="border border-black p-2 h-[0.5in]">{edu.institution}</td>
+                      <td className="border border-black p-2 h-[0.5in]">{edu.grade}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </Section>
         )}
 
         {achievements && achievements.length > 0 && (
           <Section title="Academic Achievements" splittable>
-              <ul className="list-disc list-outside space-y-1 text-base pl-8">
+              <ul className="custom-bullet-list technical-skills-list space-y-1 text-base">
                   {achievements.map(ach => (
                       <li key={ach.id} dangerouslySetInnerHTML={{ __html: ach.description }}></li>
                   ))}
@@ -85,7 +87,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>(({ resumeDa
         
         {internships && internships.length > 0 && (
             <Section title="Internship Experience" splittable>
-                <ul className="list-disc list-outside space-y-4 text-base pl-8">
+                <ul className="custom-bullet-list technical-skills-list space-y-4 text-base">
                     {internships.map(intern => (
                         <li key={intern.id}>
                             <div className="flex justify-between items-baseline">
@@ -101,7 +103,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>(({ resumeDa
 
         {projects && projects.length > 0 && (
             <Section title="Projects" splittable>
-                <ul className="list-disc list-outside space-y-4 text-base pl-8">
+                <ul className="custom-bullet-list technical-skills-list space-y-4 text-base">
                     {projects.map(proj => (
                         <li key={proj.id}>
                             <div className="flex justify-between items-baseline">
@@ -117,7 +119,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>(({ resumeDa
         
         {skills && skills.length > 0 && (
             <Section title="Technical Skills and Certifications" splittable={false}>
-                <ul className="list-disc list-outside pl-8">
+                <ul className="custom-bullet-list technical-skills-list">
                     {skills.map(skill => (
                         <li key={skill.id}>
                             <span className="inline-block w-56">{skill.category}</span>
@@ -130,7 +132,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>(({ resumeDa
         
         {positions && positions.length > 0 && (
             <Section title="Positions of Responsibility" splittable>
-                <ul className="list-disc list-outside space-y-4 text-base pl-8">
+                <ul className="custom-bullet-list technical-skills-list space-y-4 text-base">
                     {positions.map(pos => (
                          <li key={pos.id}>
                             <div className="flex justify-between items-baseline">
@@ -149,7 +151,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>(({ resumeDa
                 {activities.map(act => (
                     <div key={act.id} className="mb-3">
                         <h3 className="font-bold text-base">{act.title}</h3>
-                        <ul className="list-disc list-outside mt-1 pl-8">
+                        <ul className="custom-bullet-list technical-skills-list mt-1">
                             {act.description.split('\n').map((line, i) => (
                                line && <li key={i} dangerouslySetInnerHTML={{ __html: line }}></li>
                             ))}

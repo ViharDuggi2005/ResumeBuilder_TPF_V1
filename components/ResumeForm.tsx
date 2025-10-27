@@ -7,6 +7,7 @@ interface ResumeFormProps {
   resumeData: ResumeData;
   setResumeData: React.Dispatch<React.SetStateAction<ResumeData>>;
   photoFileInputRef: React.RefObject<HTMLInputElement>;
+  logoFileInputRef: React.RefObject<HTMLInputElement>;
 }
 
 type DynamicSectionKey = Exclude<keyof ResumeData, 'personalDetails'>;
@@ -32,7 +33,7 @@ const TextArea: React.FC<{ label: string, value: string, name: string, rows?: nu
   </div>
 );
 
-const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, setResumeData, photoFileInputRef }) => {
+const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, setResumeData, photoFileInputRef, logoFileInputRef }) => {
   const [enhancingId, setEnhancingId] = useState<string | null>(null);
   
   // State for image cropping modal
@@ -40,6 +41,7 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, setResumeData, phot
   const [crop, setCrop] = useState<Crop>();
   const [completedCrop, setCompletedCrop] = useState<Crop>();
   const [isCropModalOpen, setIsCropModalOpen] = useState(false);
+  const [editingImageFor, setEditingImageFor] = useState<'photo' | 'logo' | null>(null);
   const imgRef = useRef<HTMLImageElement>(null);
 
   const handlePersonalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -109,8 +111,9 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, setResumeData, phot
   };
 
   // Image crop functions
-  const onSelectFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const onSelectFile = (e: React.ChangeEvent<HTMLInputElement>, imageType: 'photo' | 'logo') => {
     if (e.target.files && e.target.files.length > 0) {
+      setEditingImageFor(imageType);
       setCrop(undefined); // Makes crop preview update between images.
       const reader = new FileReader();
       reader.addEventListener('load', () => setImgSrc(reader.result?.toString() || ''));
@@ -122,7 +125,7 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, setResumeData, phot
   function onImageLoad(e: React.SyntheticEvent<HTMLImageElement>) {
     imgRef.current = e.currentTarget;
     const { width, height } = e.currentTarget;
-    const aspect = 130 / 140;
+    const aspect = editingImageFor === 'logo' ? 1 : 130 / 140;
     const crop = centerCrop(
       makeAspectCrop({ unit: '%', width: 90 }, aspect, width, height),
       width,
@@ -167,13 +170,18 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, setResumeData, phot
     );
     
     const base64Image = canvas.toDataURL('image/jpeg');
-    setResumeData(prev => ({
-        ...prev,
-        personalDetails: { ...prev.personalDetails, photo: base64Image }
-    }));
+    const fieldToUpdate = editingImageFor;
+    if (fieldToUpdate) {
+        setResumeData(prev => ({
+            ...prev,
+            personalDetails: { ...prev.personalDetails, [fieldToUpdate]: base64Image }
+        }));
+    }
+
     setIsCropModalOpen(false);
     setImgSrc('');
     if(photoFileInputRef.current) photoFileInputRef.current.value = "";
+    if(logoFileInputRef.current) logoFileInputRef.current.value = "";
   }
 
   return (
@@ -185,7 +193,7 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, setResumeData, phot
         
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-600 mb-1">Profile Photo</label>
-          <input type="file" accept="image/*" onChange={onSelectFile} ref={photoFileInputRef} className="hidden" />
+          <input type="file" accept="image/*" onChange={(e) => onSelectFile(e, 'photo')} ref={photoFileInputRef} className="hidden" />
           <button 
             onClick={() => photoFileInputRef.current?.click()}
             className="w-full p-2 border border-gray-300 rounded-md hover:bg-gray-50 transition bg-white text-gray-800"
@@ -194,7 +202,17 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, setResumeData, phot
           </button>
         </div>
 
-        <Input label="Logo URL" name="logo" value={resumeData.personalDetails.logo} onChange={handlePersonalChange} />
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-600 mb-1">Institute Logo</label>
+          <input type="file" accept="image/*" onChange={(e) => onSelectFile(e, 'logo')} ref={logoFileInputRef} className="hidden" />
+          <button 
+            onClick={() => logoFileInputRef.current?.click()}
+            className="w-full p-2 border border-gray-300 rounded-md hover:bg-gray-50 transition bg-white text-gray-800"
+          >
+            Upload Logo
+          </button>
+        </div>
+
         <Input label="Degree" name="degree" value={resumeData.personalDetails.degree} onChange={handlePersonalChange} />
         <Input label="Gender" name="gender" value={resumeData.personalDetails.gender} onChange={handlePersonalChange} />
         <Input label="Date of Birth" name="dob" value={resumeData.personalDetails.dob} onChange={handlePersonalChange} />
@@ -202,7 +220,6 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, setResumeData, phot
         <Input label="Contact" name="contact" value={resumeData.personalDetails.contact} onChange={handlePersonalChange} />
       </FormSection>
       
-      {/* Rest of the form sections... */}
       <FormSection title="Educational Qualification">
         {resumeData.education.map((edu, index) => (
           <div key={edu.id} className="border-b pb-4 mb-4">
@@ -274,7 +291,7 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, setResumeData, phot
         ))}
         <button onClick={() => addDynamicItem('projects', {id: crypto.randomUUID(), name: '', date: '', description: ''})} className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Add Project</button>
        </FormSection>
-        {/* ... other sections ... */}
+        
         <FormSection title="Technical Skills and Certifications">
         {resumeData.skills.map((skill, index) => (
             <div key={skill.id} className="border-b pb-4 mb-4">
@@ -326,13 +343,13 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, setResumeData, phot
        {isCropModalOpen && (
          <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
             <div className="bg-white p-4 rounded-lg max-w-2xl w-full">
-              <h2 className="text-xl font-bold mb-4">Crop Your Photo</h2>
+              <h2 className="text-xl font-bold mb-4">Crop Your Image</h2>
               {imgSrc && (
                 <ReactCrop
                   crop={crop}
                   onChange={(_, percentCrop) => setCrop(percentCrop)}
                   onComplete={(c) => setCompletedCrop(c)}
-                  aspect={130 / 140}
+                  aspect={editingImageFor === 'logo' ? 1 : 130 / 140}
                 >
                   <img
                     ref={imgRef}

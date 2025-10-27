@@ -1,4 +1,4 @@
-import React, { useState, useLayoutEffect, useRef } from 'react';
+import React, { useState, useLayoutEffect, useRef, forwardRef } from 'react';
 import ResumePreview from './ResumePreview';
 import type { ResumeData } from '../types';
 
@@ -7,13 +7,16 @@ const PAGE_HEIGHT_PX = 1123;
 interface PaginatedResumeProps {
   resumeData: ResumeData;
   onPhotoUploadClick: () => void;
+  onLogoUploadClick: () => void;
 }
 
-const PaginatedResume: React.FC<PaginatedResumeProps> = ({ resumeData, onPhotoUploadClick }) => {
+const PaginatedResume = forwardRef<HTMLDivElement, PaginatedResumeProps>(({ resumeData, onPhotoUploadClick, onLogoUploadClick }, ref) => {
   const sourceRef = useRef<HTMLDivElement>(null);
   const [pages, setPages] = useState<string[]>([]);
   const [headerHtml, setHeaderHtml] = useState('');
   const [footerHtml, setFooterHtml] = useState('');
+
+  const isPlaceholder = (url: string) => url.includes('via.placeholder.com');
 
   useLayoutEffect(() => {
     const calculatePages = () => {
@@ -80,48 +83,59 @@ const PaginatedResume: React.FC<PaginatedResumeProps> = ({ resumeData, onPhotoUp
 
         const sectionHeader = sectionNode.children[0] as HTMLElement;
         const listContainer = sectionNode.children[1] as HTMLElement;
-        if (!sectionHeader || !listContainer) continue;
+
+        if (!sectionHeader || !listContainer) {
+            currentPageHtml += sectionNode.outerHTML;
+            currentHeight += sectionHeight;
+            continue;
+        }
 
         const items = Array.from(listContainer.children) as HTMLElement[];
         const sectionHeaderHeight = getElementHeight(sectionHeader);
         const firstItemHeight = items.length > 0 ? getElementHeight(items[0]) : 0;
-        
+
         if (currentHeight > 0 && currentHeight + sectionHeaderHeight + firstItemHeight > availableHeight) {
-          pagesContent.push(currentPageHtml);
-          currentPageHtml = '';
-          currentHeight = 0;
-          isFirstPage = false;
-          availableHeight = subsequentPageAvailableHeight;
+             pagesContent.push(currentPageHtml);
+             currentPageHtml = '';
+             currentHeight = 0;
+             isFirstPage = false;
+             availableHeight = subsequentPageAvailableHeight;
         }
 
         const sectionOpeningTag = `<div class="${sectionNode.className}" data-splittable="true">`;
         const sectionClosingTag = '</div>';
-        const listOpeningTag = `<${listContainer.tagName.toLowerCase()} class="${listContainer.className}">`;
-        const listClosingTag = `</${listContainer.tagName.toLowerCase()}>`;
         
         let currentSectionHtml = sectionHeader.outerHTML;
         currentHeight += sectionHeaderHeight;
+
+        const listOpeningTag = `<${listContainer.tagName.toLowerCase()} class="${listContainer.className}">`;
+        const listClosingTag = `</${listContainer.tagName.toLowerCase()}>`;
         
         let listItemsHtml = '';
-        for (const item of items) {
-          const itemHeight = getElementHeight(item);
-          if (currentHeight + itemHeight > availableHeight) {
-            currentPageHtml += sectionOpeningTag + currentSectionHtml + listOpeningTag + listItemsHtml + listClosingTag + sectionClosingTag;
-            pagesContent.push(currentPageHtml);
 
-            isFirstPage = false;
-            availableHeight = subsequentPageAvailableHeight;
-            currentPageHtml = '';
-            currentHeight = 0;
-            currentSectionHtml = '';
-            listItemsHtml = item.outerHTML;
-            currentHeight += itemHeight;
-          } else {
-            listItemsHtml += item.outerHTML;
-            currentHeight += itemHeight;
-          }
+        for (const item of items) {
+            const itemHeight = getElementHeight(item);
+
+            if (currentHeight + itemHeight > availableHeight) {
+                currentPageHtml += sectionOpeningTag + currentSectionHtml + listOpeningTag + listItemsHtml + listClosingTag + sectionClosingTag;
+                pagesContent.push(currentPageHtml);
+                
+                isFirstPage = false;
+                availableHeight = subsequentPageAvailableHeight;
+                currentPageHtml = '';
+                
+                listItemsHtml = item.outerHTML;
+                currentHeight = itemHeight;
+                currentSectionHtml = '';
+            } else {
+                listItemsHtml += item.outerHTML;
+                currentHeight += itemHeight;
+            }
         }
-        currentPageHtml += sectionOpeningTag + currentSectionHtml + listOpeningTag + listItemsHtml + listClosingTag + sectionClosingTag;
+        
+        if (listItemsHtml) {
+            currentPageHtml += sectionOpeningTag + currentSectionHtml + listOpeningTag + listItemsHtml + listClosingTag + sectionClosingTag;
+        }
       }
 
       if (currentPageHtml) {
@@ -141,8 +155,17 @@ const PaginatedResume: React.FC<PaginatedResumeProps> = ({ resumeData, onPhotoUp
 
   }, [resumeData]);
 
+  const UploadButton = () => (
+    <div className="text-center">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+        </svg>
+        <span className="text-sm mt-1">Upload</span>
+    </div>
+  );
+
   return (
-    <div className="flex flex-col items-center gap-8">
+    <div ref={ref} className="flex flex-col items-center gap-8">
       <div className="absolute top-0 left-[-9999px] opacity-0" aria-hidden="true">
         <ResumePreview resumeData={resumeData} ref={sourceRef} />
       </div>
@@ -150,7 +173,7 @@ const PaginatedResume: React.FC<PaginatedResumeProps> = ({ resumeData, onPhotoUp
       {pages.length > 0 ? pages.map((content, index) => (
         <div key={index} className="relative">
           <div 
-            className={`bg-white shadow-lg px-10 pb-4 w-[210mm] h-[297mm] flex flex-col text-black leading-relaxed ${index === 0 ? 'pt-16' : 'pt-10'}`}
+            className={`resume-page-container bg-white shadow-lg px-10 pb-4 w-[210mm] h-[297mm] flex flex-col text-black leading-relaxed ${index === 0 ? 'pt-16' : 'pt-10'}`}
           >
             {index === 0 && (
               <>
@@ -163,18 +186,24 @@ const PaginatedResume: React.FC<PaginatedResumeProps> = ({ resumeData, onPhotoUp
           </div>
 
           {index === 0 && (
-            <button
-              onClick={onPhotoUploadClick}
-              className="absolute top-[64px] right-[40px] h-[140px] w-[130px] bg-black bg-opacity-0 hover:bg-opacity-50 flex items-center justify-center text-white opacity-0 hover:opacity-100 transition-opacity duration-300 group cursor-pointer"
-              aria-label="Upload new photo"
-            >
-              <div className="text-center">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                </svg>
-                <span className="text-sm mt-1">Upload</span>
-              </div>
-            </button>
+            <>
+              <button
+                onClick={onLogoUploadClick}
+                className={`absolute top-[64px] left-[40px] h-36 w-36 bg-black flex items-center justify-center text-white cursor-pointer group transition-opacity duration-300 
+                  ${isPlaceholder(resumeData.personalDetails.logo) ? 'bg-opacity-50 opacity-100' : 'bg-opacity-0 opacity-0 group-hover:opacity-100'}`}
+                aria-label="Upload new logo"
+              >
+                <UploadButton />
+              </button>
+              <button
+                onClick={onPhotoUploadClick}
+                className={`absolute top-[64px] right-[40px] h-[140px] w-[130px] bg-black flex items-center justify-center text-white cursor-pointer group transition-opacity duration-300 
+                  ${isPlaceholder(resumeData.personalDetails.photo) ? 'bg-opacity-50 opacity-100' : 'bg-opacity-0 opacity-0 group-hover:opacity-100'}`}
+                aria-label="Upload new photo"
+              >
+                <UploadButton />
+              </button>
+            </>
           )}
         </div>
       )) : (
@@ -184,6 +213,6 @@ const PaginatedResume: React.FC<PaginatedResumeProps> = ({ resumeData, onPhotoUp
       )}
     </div>
   );
-};
+});
 
 export default PaginatedResume;

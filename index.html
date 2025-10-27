@@ -26,6 +26,27 @@
   body {
     font-family: 'Lato', sans-serif;
   }
+  .custom-bullet-list {
+    list-style: none;
+    padding-left: 0;
+  }
+  .custom-bullet-list li {
+    position: relative;
+    padding-left: 2rem; /* Corresponds to pl-8 */
+  }
+  .custom-bullet-list li::before {
+    content: '•';
+    position: absolute;
+    left: 0.75rem; /* Adjust horizontal position of bullet */
+    top: 0.05em; /* Adjust vertical position to align with text */
+    font-size: 1em;
+  }
+  .technical-skills-list li {
+    padding-left: 3rem; /* Corresponds to pl-12 */
+  }
+  .technical-skills-list li::before {
+    left: 1.75rem; /* Moves bullet further right */
+  }
 </style>
 </head>
   <body class="bg-gray-200">
