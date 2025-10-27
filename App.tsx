@@ -27,19 +27,19 @@ const initialResumeData: ResumeData = {
     {
       id: 'int1',
       title: 'Research Internship at Indian Institute of Technology Guwahati',
-      date: 'Jun 2025 - Aug 2025',
+      date: 'Jun 2025 - Present',
       description: 'Working as a research intern on the project Air to Water Generator. I simulated a model in Dymola to extract water from humid air with the purpose of satisfying water requirements in coastal regions.',
     },
     {
       id: 'int2',
       title: 'Internship at AHODS Technologies Private Limited',
-      date: 'Jan 2025 - Mar 2025',
+      date: 'Jun 2025 - Aug 2025',
       description: "Worked in the Research and Development team of AHODS Technologies on the project 'To increase hydrogen production for onboard application in vehicles' in collaboration Dr. K.K Pant of Chemical Engineering department of IIT Delhi.\nPerformed literature survey on different methods to improve hydrogen production through electrolysis and compared the different approaches based on energy requirement and sustainability to provide effective and cost-efficient solutions",
     },
   ],
   achievements: [
     { id: 'ach1', description: 'Secured <b>Rank 2</b> in Cyber Olympiad(IFCO) in the Zonal level conducted by International Olympiad Foundation in 2022.' },
-    { id: 'ach2', description: 'Won <b>1st Place</b> at Smart India Hackathon 2024.' },
+    { id: 'ach2', description: 'Achieved <b>Top 5%</b> in the national competitive programming contest CodeSprint 2023.' },
     { id: 'ach3', description: '<b>IBPC Meritorious Student Award</b> in 2021 and 2023.' },
   ],
   projects: [
@@ -47,7 +47,7 @@ const initialResumeData: ResumeData = {
       id: 'proj1',
       name: 'RideNITT',
       date: 'January 2025 - March 2025',
-      description: 'Developed a ride-sharing platform for students using React.js, Tailwind CSS, and Leaflet.js for routing. Built a secure Express.js backend with Prisma and PostgreSQL, featuring Google OAuth2 for authentication. Delivered a responsive, user-friendly interface, reducing load times by 30%.',
+      description: 'Developed RideNitt, a ride-sharing platform for students, using React.js, Tailwind CSS, and an Express.js backend with PostgreSQL. Features include Google OAuth2 authentication and Leaflet.js for routing, delivering a responsive user interface.',
     },
     {
       id: 'proj2',
@@ -59,7 +59,7 @@ const initialResumeData: ResumeData = {
       id: 'proj3',
       name: 'Chatty',
       date: 'June 2025',
-      description: 'Built a real-time chat application with one-on-one messaging, notifications, and online user status. The frontend uses React.js and Tailwind CSS. The Node.js and Express backend handles user management and messaging with a MongoDB database. Implemented secure JWT authentication and used Socket.io for real-time message exchange.',
+      description: 'Built Chatty, a real-time chat application with one-on-one messaging and online status. Utilized the MERN stack with Socket.io for real-time features, JWT for security, and Zustand for state management, ensuring a modern and responsive UI.',
     },
   ],
   skills: [

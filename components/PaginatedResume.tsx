@@ -45,15 +45,17 @@ const PaginatedResume = forwardRef<HTMLDivElement, PaginatedResumeProps>(({ resu
       const mainStyle = window.getComputedStyle(main);
       const mainPaddingTop = parseInt(mainStyle.paddingTop, 10);
 
+      // A small buffer to prevent minor overflows due to calculation inaccuracies
+      const PAGINATION_OFFSET_BUFFER = 8; // Reduced from 24 to tighten up space
+
       const headerSectionHeight = getElementHeight(header) + getElementHeight(mainHr);
       const footerSectionHeight = getElementHeight(footer);
 
       const firstPagePaddingY = 64 + 16; // pt-16 + pb-4
       const subsequentPagePaddingY = 40 + 16; // pt-10 + pb-4
-      const safetyMargin = 10; // Safety margin for calculation inaccuracies
 
-      const firstPageAvailableHeight = PAGE_HEIGHT_PX - firstPagePaddingY - headerSectionHeight - footerSectionHeight - mainPaddingTop - safetyMargin;
-      const subsequentPageAvailableHeight = PAGE_HEIGHT_PX - subsequentPagePaddingY - footerSectionHeight - safetyMargin;
+      const firstPageAvailableHeight = PAGE_HEIGHT_PX - firstPagePaddingY - headerSectionHeight - footerSectionHeight - mainPaddingTop - PAGINATION_OFFSET_BUFFER;
+      const subsequentPageAvailableHeight = PAGE_HEIGHT_PX - subsequentPagePaddingY - footerSectionHeight - PAGINATION_OFFSET_BUFFER;
       
       const pagesContent: string[] = [];
       let currentPageHtml = "";
@@ -191,7 +193,7 @@ const PaginatedResume = forwardRef<HTMLDivElement, PaginatedResumeProps>(({ resu
               <button
                 onClick={onLogoUploadClick}
                 className={`absolute top-[64px] left-[40px] h-36 w-36 bg-black flex items-center justify-center text-white cursor-pointer group transition-opacity duration-300 
-                  ${isPlaceholder(resumeData.personalDetails.logo) ? 'bg-opacity-50 opacity-100' : 'bg-opacity-0 opacity-0 group-hover:opacity-100'}`}
+                  ${isPlaceholder(resumeData.personalDetails.logo) ? 'bg-opacity-50 opacity-100' : 'bg-opacity-40 opacity-50 group-hover:opacity-100'}`}
                 aria-label="Upload new logo"
               >
                 <UploadButton />
@@ -199,7 +201,7 @@ const PaginatedResume = forwardRef<HTMLDivElement, PaginatedResumeProps>(({ resu
               <button
                 onClick={onPhotoUploadClick}
                 className={`absolute top-[64px] right-[40px] h-[140px] w-[130px] bg-black flex items-center justify-center text-white cursor-pointer group transition-opacity duration-300 
-                  ${isPlaceholder(resumeData.personalDetails.photo) ? 'bg-opacity-50 opacity-100' : 'bg-opacity-0 opacity-0 group-hover:opacity-100'}`}
+                  ${isPlaceholder(resumeData.personalDetails.photo) ? 'bg-opacity-50 opacity-100' : 'bg-opacity-40 opacity-50 group-hover:opacity-100'}`}
                 aria-label="Upload new photo"
               >
                 <UploadButton />
