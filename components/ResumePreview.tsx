@@ -151,7 +151,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>(({ resumeDa
                         </li>
                     ))}
                 </ul>
-            </section>
+            </Section>
         )}
         
         {activities && activities.length > 0 && (
