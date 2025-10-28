@@ -47,6 +47,21 @@
   .technical-skills-list li::before {
     left: 1.75rem; /* Moves bullet further right */
   }
+  .custom-square-list {
+    list-style: none;
+    padding-left: 0;
+  }
+  .custom-square-list li {
+    position: relative;
+    padding-left: 3rem; /* Match other lists */
+  }
+  .custom-square-list li::before {
+    content: '■';
+    position: absolute;
+    left: 1.75rem; /* Match other lists */
+    top: 0.2em;
+    font-size: 0.7em;
+  }
   @keyframes fadeIn {
     from { opacity: 0; transform: translate(-50%, 10px); }
     to { opacity: 1; transform: translate(-50%, 0); }

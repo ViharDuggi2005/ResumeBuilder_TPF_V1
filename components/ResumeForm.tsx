@@ -276,7 +276,7 @@ const ResumeForm: React.FC<ResumeFormProps> = ({ resumeData, setResumeData, phot
                 <Input label="Name" name="name" value={proj.name} onChange={(e) => handleDynamicChange('projects', proj.id, e)} />
                 <Input label="Date" name="date" value={proj.date} onChange={(e) => handleDynamicChange('projects', proj.id, e)} />
                 <TextArea label="Description" name="description" rows={5} value={proj.description} onChange={(e) => handleDynamicChange('projects', proj.id, e)} />
-                <p className="text-xs text-gray-500 -mt-2 mb-2 ml-1">Use &lt;b&gt;text&lt;/b&gt; to make text bold.</p>
+                <p className="text-xs text-gray-500 -mt-2 mb-2 ml-1">Use &lt;b&gt;text&lt;/b&gt; to make text bold. Use a newline for bullet points.</p>
                 <div className="flex items-center justify-between mt-2">
                      <button
                         onClick={() => handleEnhanceWithAi('projects', proj.id, proj.description)}

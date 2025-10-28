@@ -189,10 +189,10 @@ const PaginatedResume = forwardRef<PaginatedResumeHandle, PaginatedResumeProps>(
             {index === 0 && (
               <>
                 <div dangerouslySetInnerHTML={{ __html: headerHtml }} />
-                <hr className="border-t-[3px] border-black my-4 -mx-10" />
+                <hr className="border-t-[3px] border-black mt-4 mb-2 -mx-10" />
               </>
             )}
-            <main className={`text-base flex-grow ${index === 0 ? 'pt-6' : 'pt-0'}`} dangerouslySetInnerHTML={{ __html: content }} />
+            <main className={`text-base flex-grow ${index === 0 ? 'pt-2' : 'pt-0'}`} dangerouslySetInnerHTML={{ __html: content }} />
             <div dangerouslySetInnerHTML={{ __html: footerHtml }} />
           </div>
 

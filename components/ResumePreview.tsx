@@ -27,7 +27,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>(({ resumeDa
   }
 
   return (
-    <div ref={ref} className="bg-white shadow-lg pt-16 px-10 pb-4 leading-relaxed w-[210mm] text-black">
+    <div ref={ref} className="bg-white shadow-lg pt-16 px-10 pb-4 leading-relaxed w-[210mm] text-black" style={{ fontFamily: 'Lato, sans-serif' }}>
       <header className="flex items-start justify-between pb-4 text-base">
         <div className="flex items-center flex-grow min-w-0">
             {personalDetails.logo && <img src={personalDetails.logo} alt="Institute Logo" className="h-36 w-36 mr-6 flex-shrink-0" />}
@@ -45,9 +45,9 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>(({ resumeDa
         {personalDetails.photo && <img src={personalDetails.photo} alt="Profile" className="h-[140px] w-[130px] object-cover border-2 border-black ml-4 flex-shrink-0" />}
       </header>
 
-      <hr className="border-t-[3px] border-black my-4 -mx-10" />
+      <hr className="border-t-[3px] border-black mt-4 mb-2 -mx-10" />
 
-      <main className="text-base pt-6">
+      <main className="text-base pt-2">
         {education && education.length > 0 && (
           <Section title="Educational Qualification">
             <div className="mt-2">
@@ -110,7 +110,15 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>(({ resumeDa
                                 <h3 className="font-bold">{proj.name}</h3>
                                 <p className="flex-shrink-0 ml-4 text-right">{proj.date}</p>
                             </div>
-                            <div dangerouslySetInnerHTML={{ __html: renderHTML(proj.description) }}></div>
+                            {proj.description.includes('\n') ? (
+                                <ul className="custom-square-list mt-1">
+                                    {proj.description.split('\n').filter(line => line.trim()).map((line, i) => (
+                                        <li key={i} dangerouslySetInnerHTML={{ __html: line.replace(/<b>/g, '<strong>').replace(/<\/b>/g, '</strong>') }}></li>
+                                    ))}
+                                </ul>
+                            ) : (
+                                <div dangerouslySetInnerHTML={{ __html: renderHTML(proj.description) }}></div>
+                            )}
                         </li>
                     ))}
                 </ul>
@@ -143,7 +151,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>(({ resumeDa
                         </li>
                     ))}
                 </ul>
-            </Section>
+            </section>
         )}
         
         {activities && activities.length > 0 && (
