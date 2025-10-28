@@ -54,7 +54,7 @@ const PaginatedResume = forwardRef<PaginatedResumeHandle, PaginatedResumeProps>(
       const mainStyle = window.getComputedStyle(main);
       const mainPaddingTop = parseInt(mainStyle.paddingTop, 10);
 
-      const PAGINATION_OFFSET_BUFFER = 0;
+      const PAGINATION_OFFSET_BUFFER = 5; // Add a small cushion
 
       const headerSectionHeight = getElementHeight(header) + getElementHeight(mainHr);
       const footerSectionHeight = getElementHeight(footer);
