@@ -1,0 +1,114 @@
+import React from 'react';
+
+const TemplateSelectionPage = ({ onSelect, onLogout }: { onSelect: () => void; onLogout: () => void }) => {
+  return (
+    <div className="relative min-h-screen bg-white overflow-hidden font-sans selection:bg-teal-100 flex flex-col">
+      
+      {/* Background Blobs */}
+      <div className="absolute top-[-10%] left-[-5%] w-[50vw] h-[50vw] bg-[#FDF6B2] rounded-full mix-blend-multiply filter blur-[100px] opacity-70 animate-blob"></div>
+      <div className="absolute top-[-10%] right-[-10%] w-[50vw] h-[50vw] bg-[#99F6E4] rounded-full mix-blend-multiply filter blur-[100px] opacity-70 animate-blob animation-delay-2000"></div>
+      <div className="absolute bottom-[-20%] left-[10%] w-[50vw] h-[50vw] bg-[#FF7E67] rounded-full mix-blend-multiply filter blur-[100px] opacity-40 animate-blob animation-delay-4000"></div>
+
+      {/* Center White Tinge/Glow */}
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-white rounded-full blur-[80px] opacity-60 z-0 pointer-events-none"></div>
+
+      {/* Content Wrapper */}
+      <div className="relative z-10 p-6 md:p-12 max-w-7xl mx-auto flex-grow w-full">
+        <div className="mb-12 flex flex-col md:flex-row justify-between items-start md:items-end">
+            <div className="text-center md:text-left">
+                <h1 className="text-4xl font-extrabold text-slate-900 mb-3 tracking-tight">Choose a Template</h1>
+                <p className="text-xl text-slate-600 max-w-2xl leading-relaxed">Select a design that best fits your profession and personality to start building.</p>
+            </div>
+             <button 
+                onClick={onLogout}
+                className="mt-4 md:mt-0 flex items-center px-5 py-2.5 text-slate-600 bg-white/80 backdrop-blur-sm border border-slate-200 rounded-lg shadow-sm hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 font-medium"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                Logout
+            </button>
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {/* Template 1 - The Active One */}
+          <div 
+            onClick={onSelect}
+            className="group cursor-pointer bg-white/80 backdrop-blur-md rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 border border-white/50 hover:border-blue-500 transform hover:-translate-y-1 ring-1 ring-slate-900/5 p-8 flex flex-col h-full"
+          >
+            <div className="flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 text-blue-600 mb-6 group-hover:scale-110 transition-transform duration-300">
+               <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+               </svg>
+            </div>
+            
+            <h3 className="font-bold text-2xl text-slate-900 mb-3">OnCampus Resume</h3>
+            <p className="text-slate-500 leading-relaxed mb-8 flex-grow">A clean, professional format optimized for academic institutions. Perfect for engineering and research roles.</p>
+            
+            <div className="flex items-center text-blue-600 font-bold group-hover:text-blue-700">
+                Get Started
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 ml-2 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+            </div>
+          </div>
+
+          {/* Template 2 - Placeholder */}
+          <div className="group relative bg-white/40 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-8 flex flex-col h-full opacity-70">
+             <div className="absolute top-6 right-6">
+                <span className="text-xs font-bold tracking-wider bg-slate-100 text-slate-500 px-3 py-1 rounded-full uppercase">Coming Soon</span>
+             </div>
+             <div className="flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 text-slate-400 mb-6">
+               <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+               </svg>
+             </div>
+             <h3 className="font-bold text-2xl text-slate-700 mb-3">Modern Creative</h3>
+             <p className="text-slate-500 leading-relaxed">A vibrant layout with accent colors and a sidebar, designed for creative professionals and designers.</p>
+          </div>
+          
+           {/* Template 3 - Placeholder */}
+           <div className="group relative bg-white/40 backdrop-blur-sm rounded-2xl shadow-lg border border-white/50 p-8 flex flex-col h-full opacity-70">
+             <div className="absolute top-6 right-6">
+                <span className="text-xs font-bold tracking-wider bg-slate-100 text-slate-500 px-3 py-1 rounded-full uppercase">Coming Soon</span>
+             </div>
+             <div className="flex items-center justify-center w-16 h-16 rounded-full bg-slate-100 text-slate-400 mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+             </div>
+             <h3 className="font-bold text-2xl text-slate-700 mb-3">Corporate Minimal</h3>
+             <p className="text-slate-500 leading-relaxed">A strictly business layout focusing on experience and skills, ideal for management and executive roles.</p>
+          </div>
+
+        </div>
+      </div>
+      
+      {/* Footer */}
+      <footer className="relative z-10 py-6 text-center text-slate-500 text-sm font-medium">
+        Made with ❤️ by TPF-NITT
+      </footer>
+
+       {/* CSS for blob animation */}
+       <style>{`
+        @keyframes blob {
+          0% { transform: translate(0px, 0px) scale(1); }
+          33% { transform: translate(30px, -50px) scale(1.1); }
+          66% { transform: translate(-20px, 20px) scale(0.9); }
+          100% { transform: translate(0px, 0px) scale(1); }
+        }
+        .animate-blob {
+          animation: blob 10s infinite;
+        }
+        .animation-delay-2000 {
+          animation-delay: 2s;
+        }
+        .animation-delay-4000 {
+          animation-delay: 4s;
+        }
+      `}</style>
+    </div>
+  );
+}
+
+export default TemplateSelectionPage;
