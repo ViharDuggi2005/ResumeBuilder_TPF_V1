@@ -13,9 +13,11 @@ interface SectionProps {
 
 const Section: React.FC<SectionProps> = ({ title, children, splittable = false }) => (
     <div className="mb-6 break-inside-avoid" data-splittable={splittable}>
-        <div className="flex items-center mb-3">
-            <h2 className="text-xl font-bold pr-4 flex-shrink-0">{title}</h2>
-            <div className="flex-grow border-t-[4px]" style={{ borderColor: '#C00000' }}></div>
+        <div className="relative mb-4">
+            <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-full h-[4px]" style={{ backgroundColor: '#C00000' }}></div>
+            <h2 className="text-xl font-bold inline-block pr-4 bg-white relative z-10">
+                {title}
+            </h2>
         </div>
         {children}
     </div>
@@ -35,7 +37,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>(({ resumeDa
   return (
     <div ref={ref} className="bg-white shadow-lg pt-16 px-10 pb-2 leading-relaxed w-[210mm] text-black" style={{ fontFamily: 'Lato, sans-serif' }}>
       <header className="flex items-start justify-between pb-4 text-[15px]">
-        <div className="flex items-center flex-grow min-w-0">
+        <div className="flex items-start flex-grow min-w-0">
             {personalDetails.logo && <img src={personalDetails.logo} alt="Institute Logo" className="h-36 w-36 mr-6 flex-shrink-0" />}
             <div className="flex-grow min-w-0">
                 <h1 className="font-bold tracking-wide break-words text-[25px] mb-1">{personalDetails.name}</h1>

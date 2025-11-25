@@ -165,28 +165,28 @@ function ResumeBuilderPage({ onBack }: { onBack: () => void }) {
         <div className="mb-6 bg-white p-2 rounded-lg shadow-md flex items-center space-x-2 sticky top-0 z-10">
             <button 
               onClick={onBack}
-              className="group flex items-center px-4 py-2 text-sm font-bold text-white bg-blue-600 rounded-full hover:bg-blue-700 transition-all duration-200 mr-2 shadow-md"
+              className="h-8 px-3 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm flex items-center justify-center space-x-1.5 mr-2"
               title="Back to Templates"
             >
-               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 transform group-hover:-translate-x-1 transition-transform duration-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                </svg>
-               Back
+               <span>Back</span>
             </button>
             <div className="h-8 w-px bg-gray-200 mx-2"></div>
-            <button onClick={() => setZoom(prev => Math.max(0.2, prev - 0.1))} className="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 font-bold">-</button>
-            <button onClick={() => setZoom(1)} className="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 text-sm">Reset</button>
-            <button onClick={() => setZoom(prev => prev + 0.1)} className="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 font-bold">+</button>
+            <button onClick={() => setZoom(prev => Math.max(0.2, prev - 0.1))} className="h-8 px-3 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 font-bold flex items-center justify-center">-</button>
+            <button onClick={() => setZoom(1)} className="h-8 px-3 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 text-sm flex items-center justify-center">Reset</button>
+            <button onClick={() => setZoom(prev => prev + 0.1)} className="h-8 px-3 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 font-bold flex items-center justify-center">+</button>
             <input
               type="text"
               value={zoomInput}
               onChange={handleZoomInputChange}
               onBlur={handleZoomInputBlur}
               onKeyDown={handleZoomInputKeyDown}
-              className="text-sm text-gray-600 w-16 text-center bg-gray-50 border border-gray-300 rounded py-1 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+              className="h-8 text-sm text-gray-600 w-16 text-center bg-gray-50 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
               aria-label="Zoom percentage"
             />
-            <button onClick={handleDownloadPdf} className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600 text-sm flex items-center space-x-1.5 ml-2">
+            <button onClick={handleDownloadPdf} className="h-8 px-3 bg-green-500 text-white rounded hover:bg-green-600 text-sm flex items-center justify-center space-x-1.5 ml-2">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
