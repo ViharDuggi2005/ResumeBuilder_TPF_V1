@@ -122,10 +122,21 @@ function ResumeBuilderPage({ onBack, initialData }: { onBack: () => void, initia
     // We select all section headers (h2) and forcefully set their paddingBottom to 18px
     // This overrides the inline 4px set by React, ensuring html2canvas captures the larger gap.
     const sectionHeaders = container.querySelectorAll('.resume-page-container h2.text-xl');
+    const redLines = container.querySelectorAll('.resume-page-container h2.text-xl + div'); // Select sibling div (red line)
+
     const originalPaddings: string[] = [];
+    const originalLinePaddings: string[] = [];
+
     sectionHeaders.forEach((header: any) => {
         originalPaddings.push(header.style.paddingBottom); // Store original (likely '4px')
         header.style.paddingBottom = '18px'; // Force PDF style
+    });
+
+    // Also apply padding-top to the red line to maintain vertical alignment in flexbox
+    // Since text padding pushes text UP relative to center, adding padding to line pushes border UP relative to center.
+    redLines.forEach((line: any) => {
+        originalLinePaddings.push(line.style.paddingTop);
+        line.style.paddingTop = '18px'; 
     });
 
     try {
@@ -315,6 +326,11 @@ function ResumeBuilderPage({ onBack, initialData }: { onBack: () => void, initia
         // Restore the headers to their original padding (likely 4px) so the screen looks correct again
         sectionHeaders.forEach((header: any, index: number) => {
             header.style.paddingBottom = originalPaddings[index] || '4px';
+        });
+        
+        // Restore red lines
+        redLines.forEach((line: any, index: number) => {
+            line.style.paddingTop = originalLinePaddings[index] || '';
         });
 
         setIsDownloading(false);
