@@ -13,9 +13,13 @@ interface SectionProps {
 
 const Section: React.FC<SectionProps> = ({ title, children, splittable = false }) => (
     <div className="mb-6 break-inside-avoid" data-splittable={splittable}>
-        <div className="grid grid-cols-[auto_1fr] items-center gap-4 mb-3">
-            <h2 className="text-xl font-bold">{title}</h2>
-            <div className="border-t-[4px] mt-1" style={{ borderColor: '#C00000' }}></div>
+        <div style={{ display: 'table', width: '100%', marginBottom: '0.75rem' }}>
+            <div style={{ display: 'table-cell', width: '1px', whiteSpace: 'nowrap', verticalAlign: 'middle', paddingRight: '1rem' }}>
+                 <h2 className="text-xl font-bold">{title}</h2>
+            </div>
+            <div style={{ display: 'table-cell', width: '100%', verticalAlign: 'middle' }}>
+                 <div className="border-t-[4px]" style={{ borderColor: '#C00000', width: '100%' }}></div>
+            </div>
         </div>
         {children}
     </div>
