@@ -13,9 +13,9 @@ interface SectionProps {
 
 const Section: React.FC<SectionProps> = ({ title, children, splittable = false }) => (
     <div className="mb-6 break-inside-avoid" data-splittable={splittable}>
-        <div className="flex items-center mb-3">
-            <h2 className="text-xl font-bold pr-4 flex-shrink-0">{title}</h2>
-            <div className="flex-grow border-t-[4px]" style={{ borderColor: '#C00000' }}></div>
+        <div className="grid grid-cols-[auto_1fr] items-center gap-4 mb-3">
+            <h2 className="text-xl font-bold">{title}</h2>
+            <div className="border-t-[4px] mt-1" style={{ borderColor: '#C00000' }}></div>
         </div>
         {children}
     </div>
