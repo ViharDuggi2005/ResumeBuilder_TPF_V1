@@ -3,12 +3,22 @@ import { GoogleGenAI, Type } from "@google/genai";
 import { initialResumeData } from '../data/initialData';
 import type { ResumeData } from '../types';
 
-declare const pdfjsLib: any;
-
 interface UploadResumePageProps {
   onUploadComplete: (data: ResumeData) => void;
   onBack: () => void;
 }
+
+// Robust ID generator that works in all environments (secure/non-secure)
+const generateId = () => {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    try {
+      return crypto.randomUUID();
+    } catch (e) {
+      // Fallback if crypto.randomUUID fails (e.g. insecure context)
+    }
+  }
+  return Date.now().toString(36) + Math.random().toString(36).substring(2);
+};
 
 const UploadResumePage: React.FC<UploadResumePageProps> = ({ onUploadComplete, onBack }) => {
   const [isProcessing, setIsProcessing] = useState(false);
@@ -50,6 +60,12 @@ const UploadResumePage: React.FC<UploadResumePageProps> = ({ onUploadComplete, o
     setIsProcessing(true);
 
     try {
+      // Access pdfjsLib from window explicitly to avoid TS issues or loading race conditions
+      const pdfjsLib = (window as any).pdfjsLib;
+      if (!pdfjsLib) {
+        throw new Error("PDF processing library not loaded. Please check your internet connection.");
+      }
+
       const arrayBuffer = await file.arrayBuffer();
       const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
       
@@ -57,10 +73,15 @@ const UploadResumePage: React.FC<UploadResumePageProps> = ({ onUploadComplete, o
       for (let i = 1; i <= pdf.numPages; i++) {
         const page = await pdf.getPage(i);
         const textContent = await page.getTextContent();
-        // Improve extraction: join with newlines to preserve visual structure/lists
-        // This helps the AI distinguish between columns and list items
+        
+        // Preserve structure by joining items with spaces, and using newlines for marked content or large gaps if possible.
+        // For simplicity and robustness with AI, simple newline separation often works best to denote "blocks".
         const pageText = textContent.items.map((item: any) => item.str).join('\n');
         fullText += `--- Page ${i} ---\n${pageText}\n`;
+      }
+
+      if (!fullText.trim() || fullText.replace(/--- Page \d+ ---/g, '').trim().length < 50) {
+        throw new Error("Could not extract text from this PDF. It might be a scanned image or password protected. Please try a different file.");
       }
 
       const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
@@ -175,14 +196,19 @@ const UploadResumePage: React.FC<UploadResumePageProps> = ({ onUploadComplete, o
         }
       });
 
-      const parsedData = JSON.parse(response.text);
+      const jsonText = response.text;
+      if (!jsonText) {
+          throw new Error("AI response was empty. Please try again.");
+      }
+
+      const parsedData = JSON.parse(jsonText);
 
       // Helper to safely map data and add unique IDs (which AI might skip)
       const processList = (list: any[]) => {
         return list?.map(item => ({
             ...item,
-            id: crypto.randomUUID(), // Always generate a fresh ID
-            description: item.description || '', // Ensure no nulls in description
+            id: generateId(),
+            description: item.description || '', 
             title: item.title || '',
             name: item.name || '',
             date: item.date || '',
@@ -206,7 +232,7 @@ const UploadResumePage: React.FC<UploadResumePageProps> = ({ onUploadComplete, o
                         || parsedData.activities?.find((a: any) => a.title?.toLowerCase().includes(title.split(' ')[0].toLowerCase()));
           
           return {
-              id: crypto.randomUUID(),
+              id: generateId(),
               title: title,
               description: found?.description || ''
           };
@@ -228,14 +254,22 @@ const UploadResumePage: React.FC<UploadResumePageProps> = ({ onUploadComplete, o
           achievements: processList(parsedData.achievements),
           skills: processList(parsedData.skills),
           positions: processList(parsedData.positions),
-          activities: standardizedActivities, // Use the standardized list
+          activities: standardizedActivities, 
       };
       
       onUploadComplete(finalData);
 
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error processing resume:", error);
-      alert("Failed to process the resume. Please try again or create from scratch.");
+      let errorMessage = "Failed to process the resume.";
+      
+      if (error.message) {
+          errorMessage = error.message;
+          if (error.message.includes("400")) errorMessage += " (Possible Invalid API Key)";
+          if (error.message.includes("429")) errorMessage += " (Quota Exceeded)";
+      }
+      
+      alert(`Error: ${errorMessage}`);
     } finally {
       setIsProcessing(false);
     }
