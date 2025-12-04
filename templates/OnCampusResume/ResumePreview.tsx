@@ -199,7 +199,7 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>(({ resumeDa
             fontSize: '10pt', 
             color: '#808080',
             lineHeight: '1.2',
-            paddingBottom: '10px' 
+            paddingBottom: '5px' 
         }}
       >
         <div style={{ borderTop: '1px solid #808080', width: '130px', margin: '0 10px' }}></div>
