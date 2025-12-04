@@ -18,14 +18,14 @@ const HEADER_BOTTOM_PADDING = '4px';
 
 const Section: React.FC<SectionProps> = ({ title, children, splittable = false }) => (
     <div className="mb-6 break-inside-avoid" data-splittable={splittable}>
-        <div className="flex items-center mb-1">
+        <div className="flex items-center mb-1 section-header-flex">
             <h2 
                 className="text-xl font-bold pr-4 flex-shrink-0" 
                 style={{ paddingBottom: HEADER_BOTTOM_PADDING }}
             >
                 {title}
             </h2>
-            <div className="flex-grow border-t-[4px]" style={{ borderColor: '#C00000' }}></div>
+            <div className="flex-grow border-t-[4px] section-header-line" style={{ borderColor: '#C00000' }}></div>
         </div>
         {children}
     </div>

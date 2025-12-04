@@ -97,11 +97,18 @@ function ResumeBuilderPage({ onBack, initialData }: { onBack: () => void, initia
         if (existingStyle) existingStyle.remove();
 
         // Helper to fetch and convert font to base64
-        const getFontBase64 = async (url: string): Promise<string> => {
+        const getFontBase64 = async (url: string): Promise<string | null> => {
             try {
                 const response = await fetch(url);
-                if (!response.ok) throw new Error(`Failed to fetch font: ${url}`);
+                if (!response.ok) {
+                    console.warn(`Failed to fetch font: ${url}. Status: ${response.status}`);
+                    return null;
+                }
                 const blob = await response.blob();
+                if (blob.size === 0) {
+                     console.warn(`Font file is empty: ${url}`);
+                     return null;
+                }
                 return new Promise((resolve, reject) => {
                     const reader = new FileReader();
                     reader.onloadend = () => {
@@ -113,7 +120,7 @@ function ResumeBuilderPage({ onBack, initialData }: { onBack: () => void, initia
                 });
             } catch (err) {
                 console.error(`Error fetching font ${url}:`, err);
-                throw new Error("FONT_FETCH_ERROR");
+                return null;
             }
         };
 
@@ -124,74 +131,100 @@ function ResumeBuilderPage({ onBack, initialData }: { onBack: () => void, initia
             latoRegularBase64 = await getFontBase64('/fonts/Lato-Regular.ttf');
             latoBoldBase64 = await getFontBase64('/fonts/Lato-Bold.ttf');
         } catch (error) {
-            throw new Error("Could not load Lato fonts. Please ensure 'Lato-Regular.ttf' and 'Lato-Bold.ttf' are in the 'fonts' folder.");
+             console.error("Font loading error", error);
         }
 
         try {
             cambriaBase64 = await getFontBase64('/fonts/Cambria-Regular.ttf');
         } catch (error) {
-            console.warn("Cambria font not found in /fonts/Cambria-Regular.ttf. Footer will fall back to default.");
+             console.error("Cambria font loading error", error);
         }
 
-        // 1. Add Lato to jsPDF Virtual File System (VFS)
-        pdf.addFileToVFS('Lato-Regular.ttf', latoRegularBase64);
-        pdf.addFileToVFS('Lato-Bold.ttf', latoBoldBase64);
-
-        // 2. Register Lato fonts in jsPDF
-        pdf.addFont('Lato-Regular.ttf', 'Lato', 'normal');
-        pdf.addFont('Lato-Regular.ttf', 'Lato', '400');
+        // 1. Add Lato to jsPDF Virtual File System (VFS) if loaded
+        if (latoRegularBase64) {
+             pdf.addFileToVFS('Lato-Regular.ttf', latoRegularBase64);
+             pdf.addFont('Lato-Regular.ttf', 'Lato', 'normal');
+             pdf.addFont('Lato-Regular.ttf', 'Lato', '400');
+        }
         
-        pdf.addFont('Lato-Bold.ttf', 'Lato', 'bold');
-        pdf.addFont('Lato-Bold.ttf', 'Lato', '700');
+        if (latoBoldBase64) {
+             pdf.addFileToVFS('Lato-Bold.ttf', latoBoldBase64);
+             pdf.addFont('Lato-Bold.ttf', 'Lato', 'bold');
+             pdf.addFont('Lato-Bold.ttf', 'Lato', '700');
+        }
 
-        // 3. Register Cambria if available
+        // 2. Register Cambria if available
         if (cambriaBase64) {
              pdf.addFileToVFS('Cambria.ttf', cambriaBase64);
              pdf.addFont('Cambria.ttf', 'Cambria', 'normal');
              pdf.addFont('Cambria.ttf', 'Cambria', '400');
         }
 
-        // 4. Inject @font-face into DOM for html2canvas
+        // 3. Inject styles into DOM for html2canvas
         style = document.createElement('style');
         style.id = styleId;
-        style.innerHTML = `
-            @font-face {
-                font-family: 'Lato';
-                src: url(data:font/ttf;base64,${latoRegularBase64}) format('truetype');
-                font-weight: normal;
-                font-style: normal;
+        
+        let fontFaceCss = '';
+        if (latoRegularBase64) {
+             fontFaceCss += `
+                @font-face {
+                    font-family: 'Lato';
+                    src: url(data:font/ttf;base64,${latoRegularBase64}) format('truetype');
+                    font-weight: normal;
+                    font-style: normal;
+                }
+                @font-face {
+                    font-family: 'Lato';
+                    src: url(data:font/ttf;base64,${latoRegularBase64}) format('truetype');
+                    font-weight: 400;
+                    font-style: normal;
+                }
+            `;
+        }
+        if (latoBoldBase64) {
+            fontFaceCss += `
+                @font-face {
+                    font-family: 'Lato';
+                    src: url(data:font/ttf;base64,${latoBoldBase64}) format('truetype');
+                    font-weight: bold;
+                    font-style: normal;
+                }
+                @font-face {
+                    font-family: 'Lato';
+                    src: url(data:font/ttf;base64,${latoBoldBase64}) format('truetype');
+                    font-weight: 700;
+                    font-style: normal;
+                }
+            `;
+        }
+        if (cambriaBase64) {
+            fontFaceCss += `
+                @font-face {
+                    font-family: 'Cambria';
+                    src: url(data:font/ttf;base64,${cambriaBase64}) format('truetype');
+                    font-weight: normal;
+                    font-style: normal;
+                }
+            `;
+        }
+
+        // Specific overrides for PDF generation
+        const pdfOverrides = `
+            .section-header-flex {
+                align-items: flex-end !important;
             }
-            @font-face {
-                font-family: 'Lato';
-                src: url(data:font/ttf;base64,${latoRegularBase64}) format('truetype');
-                font-weight: 400;
-                font-style: normal;
+            .section-header-line {
+                margin-bottom: 4px !important;
             }
-            @font-face {
-                font-family: 'Lato';
-                src: url(data:font/ttf;base64,${latoBoldBase64}) format('truetype');
-                font-weight: bold;
-                font-style: normal;
-            }
-            @font-face {
-                font-family: 'Lato';
-                src: url(data:font/ttf;base64,${latoBoldBase64}) format('truetype');
-                font-weight: 700;
-                font-style: normal;
-            }
-            ${cambriaBase64 ? `
-            @font-face {
-                font-family: 'Cambria';
-                src: url(data:font/ttf;base64,${cambriaBase64}) format('truetype');
-                font-weight: normal;
-                font-style: normal;
-            }
-            ` : ''}
         `;
+
+        style.innerHTML = fontFaceCss + pdfOverrides;
         document.head.appendChild(style);
 
-        // Set default font for the document
-        pdf.setFont('Lato', 'normal');
+        // Set default font for the document if loaded
+        if (latoRegularBase64) {
+            pdf.setFont('Lato', 'normal');
+        }
 
         // Render Pages
         for (let i = 0; i < pageElements.length; i++) {
