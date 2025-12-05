@@ -10,7 +10,10 @@ export const initialResumeData: ResumeData = {
     email: 'tp@nitt.edu',
     contact: '+91-431-2501081',
     logo: 'https://via.placeholder.com/144x144.png?text=',
+    linkedin: '',
+    github: '',
   },
+  summary: '',
   education: [
     { id: 'edu1', year: '2023-Present', degree: 'B.Tech- CSE', institution: 'NIT, Trichy', grade: '9.2' },
     { id: 'edu2', year: '2023', degree: 'Class XII', institution: 'Delhi Public School, R. K. Puram', grade: '97.2%' },
@@ -69,5 +72,140 @@ export const initialResumeData: ResumeData = {
       { id: 'act1', title: 'Social Activities', description: 'A volunteer under the HumaNITTy programme, NIT Trichy chapter, which aims at visiting local old age homes and orphanages and spending quality time with them.\nConducted Breast Cancer Awareness during my tenure as an A-Flight NCC Cadet at NIT Trichy.'},
       { id: 'act2', title: 'Cultural Activities', description: 'Secured 1st position in Pixel Pirates event of Pragyan in 2023.\nParticipated in the Republic Day Parade of NIT Trichy in 2024.\nDAN 1 - Black Belt Holder in Karate'},
       { id: 'act3', title: 'Sports Activities', description: 'Participated in 10K sportsfete marathon'},
-  ]
+  ],
+  languages: [],
+  webLinks: [],
+  coursework: [],
+  technicalAchievements: [],
 };
+
+export const modernCreativeInitialData: ResumeData = {
+  personalDetails: {
+    name: 'SAM WILSON',
+    photo: 'https://via.placeholder.com/150',
+    degree: 'B.Des - Product Design',
+    gender: 'Male',
+    dob: '12/05/2003',
+    email: 's@gmail.com',
+    contact: '+91-9876543210',
+    logo: '', 
+    linkedin: 'https://linkedin.com/in/samwilson',
+    github: 'https://github.com/samwilson',
+  },
+  summary: 'Creative and detail-oriented Product Designer with a passion for user-centric solutions. Experienced in creating intuitive interfaces and conducting user research. Proficient in modern design tools and prototyping frameworks, with a strong ability to collaborate across cross-functional teams to deliver high-quality digital products.',
+  education: [
+    { id: 'edu1', year: '2021-2025', degree: 'B.Des', institution: 'National Institute of Design', grade: '8.8 CGPA' },
+    { id: 'edu2', year: '2021', degree: 'Class XII', institution: 'City High School', grade: '95%' },
+  ],
+  internships: [
+    {
+      id: 'int1',
+      title: 'Product Design Intern',
+      date: 'May 2024 - Jul 2024',
+      description: 'Designed user-centric interfaces for a mobile application. Conducted user research and usability testing to improve experience.',
+    },
+    {
+      id: 'int2',
+      title: 'UI/UX Intern',
+      date: 'May 2023 - Jul 2023',
+      description: 'Collaborated with the dev team to implement responsive designs. Created wireframes and prototypes for web platforms.',
+    },
+  ],
+  achievements: [
+    { id: 'ach1', description: 'Winner of National Design Challenge 2023.' },
+    { id: 'ach2', description: 'Featured in Design Daily Magazine for innovative mobile UI concepts.' },
+  ],
+  projects: [
+    {
+      id: 'proj1',
+      name: 'SmartHome App',
+      date: 'Jan 2024',
+      description: 'A mobile app to control smart home devices. Created wireframes, high-fidelity mockups, and interactive prototypes.',
+    },
+    {
+      id: 'proj2',
+      name: 'Portfolio Website',
+      date: 'Nov 2023',
+      description: 'Designed and developed a personal portfolio website using React and Tailwind CSS to showcase design projects.',
+    },
+  ],
+  skills: [
+      { id: 'skill1', category: '', skills: 'Figma, Adobe XD, Photoshop, Illustrator, ProtoPie, Framer, HTML, CSS, React.js' },
+  ],
+  positions: [
+    { id: 'pos1', title: 'Creative Lead', date: '2023-Present', description: 'Leading the design team for the college annual magazine. Overseeing layout, typography, and visual consistency.'},
+  ],
+  activities: [
+      { id: 'act1', title: 'Volunteering', description: 'Volunteer at local animal shelter.\nOrganized fundraising event for charity.'},
+      { id: 'act2', title: 'Interests', description: 'Photography, Traveling, Sketching.'},
+  ],
+  languages: [
+    { id: 'lang1', language: 'English', proficiency: 'Native' },
+    { id: 'lang2', language: 'Spanish', proficiency: 'Intermediate' },
+  ],
+  webLinks: [],
+  coursework: [],
+  technicalAchievements: [],
+};
+
+export const corporateMinimalInitialData: ResumeData = {
+    personalDetails: {
+      name: 'Divyansh Kumar Singh',
+      photo: '',
+      degree: 'B.Tech in Computer Science',
+      gender: '',
+      dob: '',
+      email: 'divyanshnikhil@gmail.com',
+      contact: '+91-8697-537-895',
+      logo: '',
+      linkedin: 'divyansh-kumar-singh',
+      github: 'd-skyhawk',
+    },
+    summary: '',
+    education: [
+      { id: 'edu1', year: 'Expected June 2019', degree: 'B.Tech in Computer Science', institution: 'NATIONAL INSTITUTE OF TECHNOLOGY', grade: 'Cum. GPA: 9.13/10.0' },
+      { id: 'edu2', year: 'Grad. May 2013', degree: 'Indian Certificate of Secondary Education', institution: 'DON BOSCO SCHOOL BANDEL', grade: 'Aggregate: 94.6 %' },
+      { id: 'edu3', year: 'Grad. May 2015', degree: 'Indian School Certificate', institution: 'DON BOSCO SCHOOL BANDEL', grade: 'Aggregate: 97.0 %' },
+    ],
+    internships: [],
+    achievements: [
+        { id: 'ach1', description: 'Secured <b>Top 1 percentile</b> in Indian School Certificate Examination 2015.' },
+        { id: 'ach2', description: 'School and City Topper at 6th National Cyber Olympiad.' },
+        { id: 'ach3', description: 'Active Participant in Competitive Programming Contests held over Codechef, Codeforces, Hackerrank and other Online Judge Platforms.' },
+        { id: 'ach4', description: 'Hackerrank Max Percentile: <b>97.23</b> among 1.37 lakh active users.' },
+        { id: 'ach5', description: 'Level "Expert" on Codeforces with <b>Rating 1780</b>' },
+        { id: 'ach6', description: 'Solved Over 150 problems on <b>SPOJ</b>' },
+        { id: 'ach7', description: 'Been at <b>top ranks</b> in annual online programming/debugging coding contests conducted by various universities in India, like NITs and IITs.' },
+    ],
+    projects: [
+      {
+        id: 'proj1',
+        name: 'SPAM FILTER',
+        date: 'Jan 2017 - Present',
+        description: 'Separating Spam emails from Ham using Naive Bayes and Support Vector Machines.\nTested on subset of 2005 TREC Public Spam Corpus with accuracy of 91.8% using Naive Bayes and 97.2% using Support Vector Machines.',
+      },
+    ],
+    skills: [
+        { id: 'skill1', category: 'LANGUAGES', skills: 'Proficient:\nC • C++ •\nIntermediate/Basics:\nPython • Shell • Java' },
+        { id: 'skill2', category: 'TOOLS AND FRAMEWORKS', skills: 'Git • Scikit-Learn(ML) • MySQL' },
+    ],
+    positions: [
+        { id: 'pos1', title: '', date: '', description: '<b>Competitive Programming and Academic Mentor</b> for freshmen and sophomores at NIT Durgapur'},
+        { id: 'pos2', title: '', date: '', description: '<b>Mentoring Competitive Programming Aspirants</b> through my blog on Algorithms, Programming and Mathematical concepts.'},
+    ],
+    activities: [
+        { id: 'act1', title: 'EXTRACURRICULAR ACTIVITIES', description: 'Top Performer at a Global Tech Company Challenge titled "<b>Design the future of gaming and entertainment</b>"\nWon "Be a Billionaire" event, which tested the business acumen and prowess in shares and stock market, at Aarohan, Techno-Management Fest at NIT Durgapur.\nHobbies: Sudoku Solving, Cycling and playing Cricket.'},
+    ],
+    languages: [],
+    webLinks: [
+        { id: 'link1', name: 'LinkedIn', url: 'divyansh-kumar-singh' },
+        { id: 'link2', name: 'Codechef', url: 'd_skyhawk' },
+        { id: 'link3', name: 'Codeforces', url: 'd_skyhawk' },
+        { id: 'link4', name: 'Hackerrank', url: 'd_skyhawk' },
+        { id: 'link5', name: 'Github', url: 'd-skyhawk' },
+    ],
+    coursework: [
+        { id: 'cw1', category: 'UNDERGRADUATE', subjects: 'Data Structures\nOperating Systems\nObject Oriented Programming\nDiscrete Mathematics' },
+    ],
+    technicalAchievements: [],
+  };

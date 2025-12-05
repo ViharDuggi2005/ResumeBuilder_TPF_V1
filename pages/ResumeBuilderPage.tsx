@@ -1,20 +1,53 @@
 import React, { useState, useRef, useEffect } from 'react';
-import ResumeForm from '../templates/OnCampusResume/ResumeForm';
-import PaginatedResume, { PaginatedResumeHandle } from '../templates/OnCampusResume/PaginatedResume';
-import type { ResumeData } from '../types';
-import { initialResumeData } from '../data/initialData';
+import OnCampusResumeForm from '../templates/OnCampusResume/ResumeForm';
+import OnCampusPaginatedResume, { PaginatedResumeHandle } from '../templates/OnCampusResume/PaginatedResume';
 
-// Declare external libraries for TypeScript
+import ModernCreativeResumeForm from '../templates/ModernCreative/ResumeForm';
+import ModernCreativePaginatedResume, { PaginatedResumeHandle as ModernPaginatedResumeHandle } from '../templates/ModernCreative/PaginatedResume';
+
+import CorporateMinimalResumeForm from '../templates/CorporateMinimal/ResumeForm';
+import CorporateMinimalPaginatedResume, { PaginatedResumeHandle as CorporatePaginatedResumeHandle } from '../templates/CorporateMinimal/PaginatedResume';
+
+import type { ResumeData } from '../types';
+import { initialResumeData, modernCreativeInitialData, corporateMinimalInitialData } from '../data/initialData';
+
 declare const jspdf: any;
 declare const html2canvas: any;
 
-function ResumeBuilderPage({ onBack, initialData }: { onBack: () => void, initialData: ResumeData | null }) {
-  const [resumeData, setResumeData] = useState<ResumeData>(initialData || initialResumeData);
+interface ResumeBuilderPageProps {
+    onBack: () => void;
+    initialData: ResumeData | null;
+    selectedTemplate: 'on-campus' | 'modern-creative' | 'corporate-minimal';
+}
+
+const THEME_COLORS = [
+  { name: 'Slate', hex: '#0f172a' },
+  { name: 'Maroon', hex: '#7f1d1d' },
+  { name: 'Dark Blue', hex: '#1e3a8a' },
+  { name: 'Purple', hex: '#581c87' },
+  { name: 'Teal', hex: '#134e4a' },
+  { name: 'Black', hex: '#000000' },
+];
+
+function ResumeBuilderPage({ onBack, initialData, selectedTemplate }: ResumeBuilderPageProps) {
+  const [resumeData, setResumeData] = useState<ResumeData>(() => {
+      if (initialData) return initialData;
+      if (selectedTemplate === 'modern-creative') return modernCreativeInitialData;
+      if (selectedTemplate === 'corporate-minimal') return corporateMinimalInitialData;
+      return initialResumeData;
+  });
+  
   const [isFormVisible, setIsFormVisible] = useState(true);
   const [zoom, setZoom] = useState(1);
   const [zoomInput, setZoomInput] = useState('100%');
   const [isDownloading, setIsDownloading] = useState(false);
-  const paginatedResumeRef = useRef<PaginatedResumeHandle>(null);
+  
+  const [themeColor, setThemeColor] = useState('#0f172a');
+  const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
+  
+  const [isLogoModalOpen, setIsLogoModalOpen] = useState(false);
+
+  const paginatedResumeRef = useRef<PaginatedResumeHandle | ModernPaginatedResumeHandle | CorporatePaginatedResumeHandle>(null);
   const photoFileInputRef = useRef<HTMLInputElement>(null);
   const logoFileInputRef = useRef<HTMLInputElement>(null);
   const [downloadError, setDownloadError] = useState<string | null>(null);
@@ -29,7 +62,21 @@ function ResumeBuilderPage({ onBack, initialData }: { onBack: () => void, initia
   };
 
   const handleTriggerLogoUpload = () => {
-    logoFileInputRef.current?.click();
+    setIsLogoModalOpen(true);
+  };
+
+  const handleSetNITTLogo = () => {
+      const NITT_LOGO_URL = "/images/NITTLogo.png";
+      setResumeData(prev => ({
+          ...prev,
+          personalDetails: { ...prev.personalDetails, logo: NITT_LOGO_URL }
+      }));
+      setIsLogoModalOpen(false);
+  };
+
+  const handleCustomLogoUploadFromModal = () => {
+      logoFileInputRef.current?.click();
+      setIsLogoModalOpen(false);
   };
 
   const isPlaceholder = (url: string) => url.includes('via.placeholder.com');
@@ -38,16 +85,22 @@ function ResumeBuilderPage({ onBack, initialData }: { onBack: () => void, initia
     const photoIsPlaceholder = isPlaceholder(resumeData.personalDetails.photo);
     const logoIsPlaceholder = isPlaceholder(resumeData.personalDetails.logo);
 
-    if (photoIsPlaceholder && logoIsPlaceholder) {
-      return "Please upload a profile photo and the institute logo before downloading.";
+    if (selectedTemplate === 'on-campus') {
+        if (photoIsPlaceholder && logoIsPlaceholder) {
+            return "Please upload a profile photo and the institute logo before downloading.";
+        }
+        if (photoIsPlaceholder) {
+            return "Please upload a profile photo before downloading.";
+        }
+        if (logoIsPlaceholder) {
+            return "Please upload the institute logo before downloading.";
+        }
+    } else if (selectedTemplate === 'modern-creative') {
+         if (photoIsPlaceholder) {
+            return "Please upload a profile photo before downloading.";
+        }
     }
-    if (photoIsPlaceholder) {
-      return "Please upload a profile photo before downloading.";
-    }
-    if (logoIsPlaceholder) {
-      return "Please upload the institute logo before downloading.";
-    }
-    return null; // All good
+    return null; 
   };
 
   const showDownloadError = (message: string) => {
@@ -96,19 +149,12 @@ function ResumeBuilderPage({ onBack, initialData }: { onBack: () => void, initia
         const existingStyle = document.getElementById(styleId);
         if (existingStyle) existingStyle.remove();
 
-        // Helper to fetch and convert font to base64
         const getFontBase64 = async (url: string): Promise<string | null> => {
             try {
                 const response = await fetch(url);
-                if (!response.ok) {
-                    console.warn(`Failed to fetch font: ${url}. Status: ${response.status}`);
-                    return null;
-                }
+                if (!response.ok) return null;
                 const blob = await response.blob();
-                if (blob.size === 0) {
-                     console.warn(`Font file is empty: ${url}`);
-                     return null;
-                }
+                if (blob.size === 0) return null;
                 return new Promise((resolve, reject) => {
                     const reader = new FileReader();
                     reader.onloadend = () => {
@@ -119,12 +165,10 @@ function ResumeBuilderPage({ onBack, initialData }: { onBack: () => void, initia
                     reader.readAsDataURL(blob);
                 });
             } catch (err) {
-                console.error(`Error fetching font ${url}:`, err);
                 return null;
             }
         };
 
-        // Fetch fonts from local /fonts directory
         let latoRegularBase64, latoBoldBase64, cambriaBase64;
         
         try {
@@ -140,7 +184,6 @@ function ResumeBuilderPage({ onBack, initialData }: { onBack: () => void, initia
              console.error("Cambria font loading error", error);
         }
 
-        // 1. Add Lato to jsPDF Virtual File System (VFS) if loaded
         if (latoRegularBase64) {
              pdf.addFileToVFS('Lato-Regular.ttf', latoRegularBase64);
              pdf.addFont('Lato-Regular.ttf', 'Lato', 'normal');
@@ -153,14 +196,12 @@ function ResumeBuilderPage({ onBack, initialData }: { onBack: () => void, initia
              pdf.addFont('Lato-Bold.ttf', 'Lato', '700');
         }
 
-        // 2. Register Cambria if available
         if (cambriaBase64) {
              pdf.addFileToVFS('Cambria.ttf', cambriaBase64);
              pdf.addFont('Cambria.ttf', 'Cambria', 'normal');
              pdf.addFont('Cambria.ttf', 'Cambria', '400');
         }
 
-        // 3. Inject styles into DOM for html2canvas
         style = document.createElement('style');
         style.id = styleId;
         
@@ -208,7 +249,6 @@ function ResumeBuilderPage({ onBack, initialData }: { onBack: () => void, initia
             `;
         }
 
-        // Specific overrides for PDF generation
         const pdfOverrides = `
             .section-header-flex {
                 align-items: flex-end !important;
@@ -216,21 +256,20 @@ function ResumeBuilderPage({ onBack, initialData }: { onBack: () => void, initia
             .section-header-line {
                 margin-bottom: 4px !important;
             }
+            .resume-section-container {
+                margin-bottom: 1.1rem !important;
+            }
         `;
 
         style.innerHTML = fontFaceCss + pdfOverrides;
         document.head.appendChild(style);
 
-        // Set default font for the document if loaded
         if (latoRegularBase64) {
             pdf.setFont('Lato', 'normal');
         }
 
-        // Render Pages
         for (let i = 0; i < pageElements.length; i++) {
           const pageElement = pageElements[i] as HTMLElement;
-          
-          // Temporarily hide upload buttons for clean PDF
           const uploadButtons = pageElement.parentElement?.querySelectorAll('button[aria-label^="Upload"]');
           uploadButtons?.forEach(btn => (btn as HTMLElement).style.visibility = 'hidden');
 
@@ -238,41 +277,32 @@ function ResumeBuilderPage({ onBack, initialData }: { onBack: () => void, initia
             pdf.addPage();
           }
 
-          // Use .html() method with specific config
           await pdf.html(pageElement, {
-            callback: (doc: any) => {
-               // Callback required
-            },
+            callback: (doc: any) => {},
             x: 0,
             y: 0,
-            width: 210, // A4 width in mm
-            windowWidth: 794, // 210mm @ 96 DPI
+            width: 210, 
+            windowWidth: 794, 
             html2canvas: {
-                scale: 0.26458, // Convert px to mm (1 px = 0.26458 mm)
+                scale: 0.26458, 
                 useCORS: true,
                 logging: false,
-                letterRendering: false, // Turn off for custom fonts to avoid spacing issues
-                allowTaint: true, // Allow cross-origin images if possible
+                letterRendering: false, 
+                allowTaint: true,
             },
-            autoPaging: false // Manual paging logic used
+            autoPaging: false 
           });
 
-          // Restore buttons
           uploadButtons?.forEach(btn => (btn as HTMLElement).style.visibility = 'visible');
         }
 
-        // Clean up injected styles
         if (style) style.remove();
-
-        // Remove the first page of the generated PDF before saving if there are multiple pages.
         if (pdf.getNumberOfPages() > 1) {
             pdf.deletePage(1);
         }
-
         pdf.save(`${resumeData.personalDetails.name.replace(/\s/g, '_')}_Resume.pdf`);
     } catch (error: any) {
         console.error("PDF Generation failed", error);
-        
         showDownloadError(error.message || "An error occurred while generating the PDF.");
     } finally {
         setIsDownloading(false);
@@ -286,10 +316,9 @@ function ResumeBuilderPage({ onBack, initialData }: { onBack: () => void, initia
   const applyZoom = () => {
     let numericValue = parseFloat(zoomInput.replace(/%/g, '').trim());
     if (!isNaN(numericValue)) {
-      numericValue = Math.max(20, Math.min(500, numericValue)); // Clamp between 20% and 500%
+      numericValue = Math.max(20, Math.min(500, numericValue)); 
       setZoom(numericValue / 100);
     } else {
-      // if invalid, revert input to current zoom value
       setZoomInput(`${Math.round(zoom * 100)}%`);
     }
   };
@@ -301,25 +330,39 @@ function ResumeBuilderPage({ onBack, initialData }: { onBack: () => void, initia
   const handleZoomInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       applyZoom();
-      (e.target as HTMLInputElement).blur(); // remove focus
+      (e.target as HTMLInputElement).blur();
     } else if (e.key === 'Escape') {
-      // revert to original value and blur
       setZoomInput(`${Math.round(zoom * 100)}%`);
       (e.target as HTMLInputElement).blur();
     }
   };
 
-
   return (
     <div className="flex h-screen bg-gray-200 overflow-hidden">
       <aside className={`transition-all duration-300 ease-in-out bg-white shadow-lg flex-shrink-0 relative ${isFormVisible ? 'w-full md:w-[500px]' : 'w-0'} overflow-hidden`}>
         <div className="h-screen overflow-y-auto">
-          <ResumeForm 
-            resumeData={resumeData} 
-            setResumeData={setResumeData} 
-            photoFileInputRef={photoFileInputRef}
-            logoFileInputRef={logoFileInputRef}
-          />
+          {selectedTemplate === 'on-campus' ? (
+              <OnCampusResumeForm 
+                resumeData={resumeData} 
+                setResumeData={setResumeData} 
+                photoFileInputRef={photoFileInputRef}
+                logoFileInputRef={logoFileInputRef}
+              />
+          ) : selectedTemplate === 'modern-creative' ? (
+              <ModernCreativeResumeForm 
+                resumeData={resumeData} 
+                setResumeData={setResumeData} 
+                photoFileInputRef={photoFileInputRef}
+                logoFileInputRef={logoFileInputRef}
+              />
+          ) : (
+              <CorporateMinimalResumeForm
+                resumeData={resumeData} 
+                setResumeData={setResumeData} 
+                photoFileInputRef={photoFileInputRef}
+                logoFileInputRef={logoFileInputRef}
+              />
+          )}
         </div>
       </aside>
 
@@ -348,6 +391,38 @@ function ResumeBuilderPage({ onBack, initialData }: { onBack: () => void, initia
               className="h-8 text-sm text-gray-600 w-16 text-center bg-gray-50 border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
               aria-label="Zoom percentage"
             />
+
+            {selectedTemplate === 'modern-creative' && (
+                <div className="relative ml-2">
+                    <button
+                        onClick={() => setIsColorPickerOpen(!isColorPickerOpen)}
+                        className="w-8 h-8 rounded-full border-2 border-white shadow-sm focus:outline-none ring-1 ring-gray-300 transition-transform hover:scale-105"
+                        style={{ backgroundColor: themeColor }}
+                        title="Change Base Color"
+                        aria-label="Change Color"
+                    />
+                    {isColorPickerOpen && (
+                        <>
+                            <div 
+                                className="fixed inset-0 z-10" 
+                                onClick={() => setIsColorPickerOpen(false)}
+                            />
+                            <div className="absolute top-full mt-3 left-1/2 -translate-x-1/2 bg-white p-3 rounded-xl shadow-xl border border-gray-100 flex gap-2 z-20 animate-fade-in">
+                                {THEME_COLORS.map(c => (
+                                    <button
+                                        key={c.name}
+                                        onClick={() => { setThemeColor(c.hex); setIsColorPickerOpen(false); }}
+                                        className="w-8 h-8 rounded-full hover:scale-110 transition-transform ring-1 ring-gray-200 border-2 border-white shadow-sm"
+                                        style={{ backgroundColor: c.hex }}
+                                        title={c.name}
+                                    />
+                                ))}
+                            </div>
+                        </>
+                    )}
+                </div>
+            )}
+
             <button 
                 onClick={() => handleDownloadPdf()} 
                 disabled={isDownloading}
@@ -368,12 +443,27 @@ function ResumeBuilderPage({ onBack, initialData }: { onBack: () => void, initia
         </div>
         
         <div style={{ transform: `scale(${zoom})`, transformOrigin: 'top' }} className="transition-transform duration-200">
-           <PaginatedResume 
-            ref={paginatedResumeRef}
-            resumeData={resumeData} 
-            onPhotoUploadClick={handleTriggerPhotoUpload}
-            onLogoUploadClick={handleTriggerLogoUpload}
-          />
+           {selectedTemplate === 'on-campus' ? (
+               <OnCampusPaginatedResume 
+                ref={paginatedResumeRef as React.RefObject<PaginatedResumeHandle>}
+                resumeData={resumeData} 
+                onPhotoUploadClick={handleTriggerPhotoUpload}
+                onLogoUploadClick={handleTriggerLogoUpload}
+              />
+           ) : selectedTemplate === 'modern-creative' ? (
+               <ModernCreativePaginatedResume
+                ref={paginatedResumeRef as React.RefObject<ModernPaginatedResumeHandle>}
+                resumeData={resumeData}
+                themeColor={themeColor}
+                onPhotoUploadClick={handleTriggerPhotoUpload}
+               />
+           ) : (
+               <CorporateMinimalPaginatedResume
+                ref={paginatedResumeRef as React.RefObject<CorporatePaginatedResumeHandle>}
+                resumeData={resumeData}
+                onPhotoUploadClick={handleTriggerPhotoUpload}
+               />
+           )}
         </div>
       </main>
 
@@ -401,7 +491,6 @@ function ResumeBuilderPage({ onBack, initialData }: { onBack: () => void, initia
         </button>
     )}
 
-    {/* Toast Notification */}
     {downloadError && (
       <div className="fixed bottom-10 left-1/2 -translate-x-1/2 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in flex items-center gap-3">
         <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -409,6 +498,49 @@ function ResumeBuilderPage({ onBack, initialData }: { onBack: () => void, initia
         </svg>
         <span>{downloadError}</span>
       </div>
+    )}
+
+    {isLogoModalOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+            <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm transform transition-all scale-100 border border-gray-200">
+                <h3 className="text-xl font-bold text-gray-900 mb-6 text-center">Select Institute Logo</h3>
+                
+                <div className="space-y-3">
+                    <button 
+                        onClick={handleSetNITTLogo}
+                        className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg font-semibold transition-colors border border-blue-200"
+                    >
+                        NITT Logo
+                    </button>
+                    
+                    <div className="relative">
+                        <div className="absolute inset-0 flex items-center">
+                            <div className="w-full border-t border-gray-200"></div>
+                        </div>
+                        <div className="relative flex justify-center text-sm">
+                            <span className="px-2 bg-white text-gray-500">Or</span>
+                        </div>
+                    </div>
+
+                    <button 
+                        onClick={handleCustomLogoUploadFromModal}
+                        className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-white text-gray-700 hover:bg-gray-50 rounded-lg font-semibold transition-colors border border-gray-300"
+                    >
+                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        Upload Logo
+                    </button>
+                </div>
+                
+                <button 
+                    onClick={() => setIsLogoModalOpen(false)}
+                    className="mt-6 w-full text-center text-gray-400 hover:text-gray-600 text-sm font-medium"
+                >
+                    Cancel
+                </button>
+            </div>
+        </div>
     )}
     </div>
   );

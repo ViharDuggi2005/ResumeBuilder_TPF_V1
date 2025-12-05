@@ -17,7 +17,7 @@ interface SectionProps {
 const HEADER_BOTTOM_PADDING = '4px'; 
 
 const Section: React.FC<SectionProps> = ({ title, children, splittable = false }) => (
-    <div className="mb-6 break-inside-avoid" data-splittable={splittable}>
+    <div className="mb-6 break-inside-avoid resume-section-container" data-splittable={splittable}>
         <div className="flex items-center mb-1 section-header-flex">
             <h2 
                 className="text-xl font-bold pr-4 flex-shrink-0" 
@@ -199,16 +199,16 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>(({ resumeDa
             fontSize: '10pt', 
             color: '#808080',
             lineHeight: '1.2',
-            paddingBottom: '5px' 
+            paddingBottom: '9px' 
         }}
       >
-        <div style={{ borderTop: '1px solid #808080', width: '130px', margin: '0 10px' }}></div>
+        <div style={{ borderTop: '1px solid #2596be', width: '100px', margin: '0 15px' }}></div>
         <div className="px-1">
             <p style={{ margin: 0 }}>Department of Training and Placement, NIT Trichy 620015</p>
             <p style={{ margin: 0 }}>Telephone : +91-431-2501081 | e-mail: tp@nitt.edu,</p>
             <p style={{ margin: 0 }}>tnp.nitt@gmail.com</p>
         </div>
-        <div style={{ borderTop: '1px solid #808080', width: '130px', margin: '0 10px' }}></div>
+        <div style={{ borderTop: '1px solid #2596be', width: '100px', margin: '0 15px' }}></div>
       </footer>
     </div>
   );
